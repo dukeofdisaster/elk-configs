@@ -1,0 +1,26 @@
+filebeat.data.path: /etc/filebeat.suricata/data
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/suricata/eve-flow.json
+    - /var/log/suricata/eve-dns.json
+    - /var/log/suricata/eve-tls.json
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.template.settings:
+  index.number_of_shards: 1
+tags: ["suricata"]
+setup.kibana:
+output.logstash:
+  hosts: ["localhost:5044"]
+processors:
+  - decode_json_fields:
+      fields: ["message"]
+      target: "suricata"
+      add_error_key: true
+logging.level: info
+logging.to_files: true
+logging.files.path: /var/log/filebeat.suricata
+logging.files.name: filebeat.log
